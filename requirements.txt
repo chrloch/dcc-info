@@ -1,0 +1,5 @@
+Pillow
+pyzbar
+base45
+wheel
+cose
