@@ -16,7 +16,7 @@ def main(args):
     try:
         logging.debug('Opening image file')
         image = Image.open(args.input_file)
-    
+
         logging.debug('Decoding QR Code')
         qr_code = qr_decode(image)[0]
         qr_code_data =  qr_code.data.decode()
@@ -27,22 +27,27 @@ def main(args):
         decompressed = zlib.decompress(b45decode(qr_code_data[4:]))
 
         logging.debug('Decoding COSE object')
-        cose_data = Sign1Message.decode(decompressed)
-        payload = cbor2.loads(cose_data.payload)
-        logging.debug(f'Payload: {payload}')
-        
-        try: 
+        try:
+            cose_data = Sign1Message.decode(decompressed)
+            payload = cbor2.loads(cose_data.payload)
+        except AttributeError:
+            # Spanish faulty certs
+            cose_data = cbor2.loads(decompressed)
+            payload = cbor2.loads(cose_data[2])
+
+
+        try:
             payload[4] = f'Timestamp({datetime.fromtimestamp(payload[4]).isoformat()})'
             payload[6] = f'Timestamp({datetime.fromtimestamp(payload[6]).isoformat()})'
-        except: 
+        except:
             pass
         pprint(payload)
 
-    except AssertionError as a: 
+    except AssertionError as a:
         print(f'This does not seem to be a Digital Corona Certificate')
-    except Exception as e: 
+    except Exception as e:
         print(f"Error processing {args.input_file}: {e}")
-    
+
 
 
 if __name__ == '__main__':
