@@ -1,5 +1,6 @@
 # A simple tool to show the contents of a EU Digital COVID Certificate
 # This tool does not verify the signature of the DCC
+# (extended version for personal debugging)
 import sys
 import logging
 import zlib
@@ -10,7 +11,20 @@ from PIL import Image
 from pyzbar.pyzbar import decode as qr_decode
 from base45 import b45decode
 from cose.messages import Sign1Message
+from cose.headers import Algorithm, KID
 from datetime import datetime
+from base64 import b64encode
+
+def get_kid_b64(cose_data):
+    if KID in cose_data.uhdr: 
+        kid = cose_data.uhdr[KID]
+    elif KID in cose_data.phdr:
+        kid = cose_data.phdr[KID]
+    else:
+        kid = b''
+
+    return b64encode(kid)
+
 
 def main(args):
     try:
@@ -21,6 +35,7 @@ def main(args):
         qr_code = qr_decode(image)[0]
         qr_code_data =  qr_code.data.decode()
 
+        print('Raw:', qr_code_data,'\n')
         assert qr_code_data.startswith('HC1:')
 
         logging.debug('Decoding/Decompressing Base45 data')
@@ -29,10 +44,16 @@ def main(args):
         logging.debug('Decoding COSE object')
         try:
             cose_data = Sign1Message.decode(decompressed)
+            print(cbor2.loads(decompressed))
+            print(f'Unprotected Header: {cose_data.uhdr}')
+            print(f'Protected Header: {cose_data.phdr}')
+            print(f'KID = {get_kid_b64(cose_data)}')
             payload = cbor2.loads(cose_data.payload)
         except AttributeError:
             # Spanish faulty certs
             cose_data = cbor2.loads(decompressed)
+            print(cose_data)
+            print(f'KID = {b64encode(cose_data[3][:8])}')
             payload = cbor2.loads(cose_data[2])
 
 
