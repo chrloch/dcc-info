@@ -50,7 +50,7 @@ def main(args):
             print(f'KID = {get_kid_b64(cose_data)}')
             payload = cbor2.loads(cose_data.payload)
         except AttributeError:
-            # Spanish faulty certs
+            # Nonstandard certs issued by certain countries
             cose_data = cbor2.loads(decompressed)
             print(cose_data)
             print(f'KID = {b64encode(cose_data[3][:8])}')

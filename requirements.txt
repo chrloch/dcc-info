@@ -3,3 +3,6 @@ pyzbar
 base45
 wheel
 cose
+#The following are only needed if you intend to use the jupyter notebook
+#jupyter
+#pyautogui

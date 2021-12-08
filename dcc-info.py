@@ -31,7 +31,7 @@ def main(args):
             cose_data = Sign1Message.decode(decompressed)
             payload = cbor2.loads(cose_data.payload)
         except AttributeError:
-            # Spanish faulty certs
+            # Nonstandard certs issued by certain countries
             cose_data = cbor2.loads(decompressed)
             payload = cbor2.loads(cose_data[2])
 
