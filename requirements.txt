@@ -3,6 +3,13 @@ pyzbar
 base45
 wheel
 cose
-#The following are only needed if you intend to use the jupyter notebook
-#jupyter
-#pyautogui
+
+# Uncomment if you want to use the notebook
+# jupyter
+
+# Uncomment if you want to use the screenshot feature
+# pyautogui
+
+# Uncomment if you want to use signature verification
+# requests
+# cryptography
